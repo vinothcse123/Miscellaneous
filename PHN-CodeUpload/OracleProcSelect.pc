@@ -1,0 +1,92 @@
+#include"stdio.h"
+#include  <cstring>
+Exec sql include sqlca;
+
+#define CONNECTION_STRING "vinoth/vinoth@vinodb"
+
+EXEC SQL BEGIN DECLARE SECTION;
+
+typedef struct ConnectionInfo_t
+{
+   sql_context m_connectionContext;
+}ConnectionInfo;
+
+EXEC SQL END DECLARE SECTION;
+
+void connectDatabase(ConnectionInfo *p_connectionInfo_ptr);
+
+void connectDatabase(ConnectionInfo *p_connectionInfo_ptr)
+{
+   if(!p_connectionInfo_ptr)
+      return;
+
+   /* Declaration */
+
+   struct sqlca sqlca;
+
+   EXEC SQL BEGIN DECLARE SECTION;
+
+   char *l_connectionString=CONNECTION_STRING;
+   sql_context l_connectionContext;
+
+   EXEC SQL END DECLARE SECTION;
+
+   /* Intializations */
+
+   memset(&sqlca,'\0',sizeof(sqlca));
+
+   /* Database Connection Handling */
+
+  EXEC SQL WHENEVER SQLERROR GO TO l_sqlErrorLabel;
+   EXEC SQL CONTEXT ALLOCATE :l_connectionContext;
+   EXEC SQL CONTEXT USE :l_connectionContext;
+   EXEC SQL CONNECT :l_connectionString;
+
+   p_connectionInfo_ptr->m_connectionContext =  l_connectionContext;
+
+   return;
+
+l_sqlErrorLabel:
+   printf("\nError Occured: %d : %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
+
+   return;
+}
+
+int  main()
+{
+   /* Declaration */
+
+   struct sqlca sqlca;
+   ConnectionInfo l_connectionInfo;
+
+   EXEC SQL BEGIN DECLARE SECTION;
+
+   sql_context l_connectionContext;
+   double l_rollNumber=0;
+
+   EXEC SQL END DECLARE SECTION;
+
+   /* Intializations */
+
+   memset(&sqlca,'\0',sizeof(sqlca));
+   memset(&l_connectionInfo,'\0',sizeof(l_connectionInfo));
+
+   /* Database Connection Handling */
+   EXEC SQL WHENEVER SQLERROR GO TO l_sqlErrorLabel;
+   connectDatabase(&l_connectionInfo);
+   EXEC SQL CONTEXT USE :l_connectionInfo.m_connectionContext;
+
+   /* Operations */
+
+   EXEC SQL SELECT ROLL_NUMBER  into :l_rollNumber from EMPLOYEE_PROFILE where EMPID LIKE '123';
+
+   printf("\n RollNumber :: %f ", l_rollNumber );
+
+   return 0;
+
+l_sqlErrorLabel:
+   printf("\nError Occured: %d : %s\n",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);
+
+   return 0;
+}
+
