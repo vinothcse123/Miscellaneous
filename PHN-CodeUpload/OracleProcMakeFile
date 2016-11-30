@@ -1,0 +1,34 @@
+
+default:OraclePreCompile
+
+#Include list
+
+include $(ORACLE_HOME)/precomp/lib/env_precomp.mk
+
+#Environment related variables
+
+
+USERID=vinoth/vinoth@vinoDB
+
+#Receipe List
+
+TARGET=OracleProcSelect.cpp
+
+
+#Variables
+MAKEFILE=Makefile
+PROCPLSFLAGS=SQLCHECK=FULL USERID=$(USERID)
+PROCPPFLAGS=CODE=CPP CPP_SUFFIX=cpp  $(PROCPLSFLAGS) $(CPLUS_SYS_INCLUDE)
+PROC = ${ORACLE_HOME}/bin/proc
+
+
+
+# TARGET AND RECEIPIES
+
+OraclePreCompile: $(TARGET)
+
+
+# DEPENDENCY RULES
+
+%.cpp:%.pc
+        $(PROC) $(PROCPPFLAGS) iname=$*
