@@ -1,0 +1,35 @@
+#include"stdio.h"
+exec sql include sqlca;
+int  main()
+{
+   exec sql begin declare section;
+   char *usr1="OracleUser/OracleUser123@oraclepz";
+   char *usr2="OracleUser_test/OracleUser_test123@oraclepz";
+   sql_context usrcontext;
+   int bal;
+   exec sql end declare section;
+   exec sql whenever sqlerror go to sqlerr;
+
+
+   exec sql connect :usr2;
+   exec sql  context allocate :usrcontext;
+
+   exec sql context use :usrcontext;
+   exec sql connect :usr1;
+   exec sql select ACCT_salary into :bal from EMPLOYEE_TABLE where empId LIKE '987650004';
+   printf("\n Account salary: %d",bal);
+
+
+   exec sql context use DEFAULT;
+   exec sql select ACCT_salary into :bal from EMPLOYEE_TABLE where empId LIKE '987650004';
+   printf("\n Account salary: %d",bal);
+
+   printf("\n Success!!!!!!\n");
+
+   return 0;
+
+sqlerr:
+   printf("\nError in DB \n");
+
+   return 0;
+}
