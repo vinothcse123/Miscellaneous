@@ -1,0 +1,79 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using System.Data.OleDb;
+
+using System.Data;
+
+namespace WpfApplication1
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        OleDbConnection con;
+        DataTable dt;
+ 
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            
+            bindme();
+        }
+
+        private void bindme()
+        {
+            OleDbCommand cmd = new OleDbCommand();
+            
+           
+            
+
+            try
+            {
+                con = new OleDbConnection();
+                con.ConnectionString = "Provider=Microsoft.Jet.Oledb.4.0; Data Source=" +  "C:\\Users\\xbbnkzm\\Documents\\database3.mdb";
+                if (con.State != ConnectionState.Open)
+                    con.Open();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: Failed to create a database connection. \n{0}", ex.Message);
+                return;
+            }
+
+            cmd.Connection = con;
+            cmd.CommandText = "select * from table1";
+            OleDbDataAdapter da = new OleDbDataAdapter(cmd);
+            dt = new DataTable();
+            da.Fill(dt);
+            gvData.ItemsSource = dt.AsDataView();
+
+            if (dt.Rows.Count > 0)
+            {
+                lblCount.Visibility = System.Windows.Visibility.Hidden;
+                gvData.Visibility = System.Windows.Visibility.Visible;
+            }
+            else
+            {
+                lblCount.Visibility = System.Windows.Visibility.Visible;
+                gvData.Visibility = System.Windows.Visibility.Hidden;
+            }
+
+            cmd.CommandText = "insert into table1 values('2450','255')";
+            cmd.ExecuteNonQuery();
+        }
+    }
+}
