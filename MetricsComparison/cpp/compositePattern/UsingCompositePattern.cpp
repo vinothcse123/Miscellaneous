@@ -4,8 +4,8 @@
 #include <thread>
 #include <unistd.h>
 #include <sys/resource.h>
-#include<vector>
-#include<algorithm>
+#include <vector>
+#include <algorithm>
 
 /* ================ Start of Metrics measurement code ==================*/
 
@@ -56,7 +56,7 @@ public:
     {
         end = std::chrono::steady_clock::now();
         m_elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
-        std::cout << "Elapsed time[" << m_startMsg <<"](microseconds): " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
+        std::cout << "Elapsed time[" << m_startMsg << "](microseconds): " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
     }
 
     void stopAccumulate()
@@ -110,7 +110,7 @@ public:
         getrusage(RUSAGE_SELF, &cpuResUsage);
         //tv_usec is microseconds, so dividing by 1000000
         // V6P - change to macro, and use c++ cast
-           return (cpuResUsage.ru_utime.tv_sec +  (cpuResUsage.ru_utime.tv_usec / (double)1000000));
+        return (cpuResUsage.ru_utime.tv_sec + (cpuResUsage.ru_utime.tv_usec / (double)1000000));
     }
 
     void printUserCpuTimeInSeconds()
@@ -124,7 +124,7 @@ public:
         getrusage(RUSAGE_SELF, &cpuResUsage);
         //tv_usec is microseconds, so dividing by 1000000
         // V6P - change to macro, and use c++ cast
-           return (cpuResUsage.ru_stime.tv_sec +  (cpuResUsage.ru_stime.tv_usec / (double)1000000));
+        return (cpuResUsage.ru_stime.tv_sec + (cpuResUsage.ru_stime.tv_usec / (double)1000000));
     }
 
     void printSystemCpuTimeInSeconds()
@@ -179,38 +179,37 @@ public:
 class CBaseClass
 {
 public:
-	virtual void virtualFunc1() = 0;
+    virtual void virtualFunc1() = 0;
 };
 
 class CBaseClassComposite : public CBaseClass
 {
 private:
-	std::vector<CBaseClass*> filterVec;
+    std::vector<CBaseClass *> filterVec;
+
 public:
-	void addFilter(CBaseClass *pBaseClass)
-	{
-		filterVec.push_back(pBaseClass);
-	}
-	
-	void virtualFunc1()
-	{
-		std::for_each(filterVec.begin(), filterVec.end(), [](CBaseClass *pBaseClass){
-			pBaseClass->virtualFunc1();
-		});
-	}
-	
+    void addFilter(CBaseClass *pBaseClass)
+    {
+        filterVec.push_back(pBaseClass);
+    }
+
+    void virtualFunc1()
+    {
+        std::for_each(filterVec.begin(), filterVec.end(), [](CBaseClass *pBaseClass) {
+            pBaseClass->virtualFunc1();
+        });
+    }
 };
 
 class CDerived1 : public CBaseClass
-{    
-	void virtualFunc1() {}
+{
+    void virtualFunc1() {}
 };
 
 class CDerived2 : public CBaseClass
 {
-	void virtualFunc1() {}
+    void virtualFunc1() {}
 };
-
 
 // Driver function
 int main()
@@ -218,16 +217,15 @@ int main()
 
     CppProgramMetrics mainPgmMetrics;
     mainPgmMetrics.start("Main Elapsed Time");
+    CBaseClassComposite compositeObj;
+    std::unique_ptr<CBaseClass> dervied1(new CDerived1);
+    std::unique_ptr<CBaseClass> dervied2(new CDerived2);
+    compositeObj.addFilter(dervied1.get());
+    compositeObj.addFilter(dervied2.get());
 
-    for(int i=0; i < 100000; i++)
+    for (int i = 0; i < 100000; i++)
     {
         // Main code goes here
-        CBaseClassComposite compositeObj;
-        std::unique_ptr<CBaseClass> dervied1(new CDerived1);
-        std::unique_ptr<CBaseClass> dervied2(new CDerived2);
-
-        compositeObj.addFilter(dervied1.get());
-        compositeObj.addFilter(dervied2.get());
 
         compositeObj.virtualFunc1();
     }
